@@ -1,5 +1,14 @@
 # CLIMADA Starter Packs
 
+<div style="text-align: center">
+<img src="build/logo_CLIMADA.png" alt="CLIMADA logo" height="80"/>
+</div>
+
+<div style="text-align: center">
+<img src="build/logo_unu.svg" alt="UNU-EHS logo" height="80" style="padding-left:20px; padding-right:20px" />
+<img src="build/logo_IDB.jpg" alt="IDB logo" height="80" style="padding-left:20px; padding-right:20px"/>
+</div>
+
 This repository contains risk analysis starter packs to use with the CLIMADA platform. They include the code and data for you to run analyses, including comments explaining choices and assumptions.
 
 The starter packs are designed to show different parts of CLIMADA in action, and are designed as an accompaniment to teaching materials and to the full, in-depth CLIMADA documentation at [https://climada-python.readthedocs.io/](https://climada-python.readthedocs.io/).

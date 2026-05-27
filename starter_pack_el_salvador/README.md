@@ -1,5 +1,14 @@
 # Starter Pack: Drought risk in El Salvador
 
+<div style="text-align: center">
+<img src="build/logo_CLIMADA.png" alt="CLIMADA logo" height="80"/>
+</div>
+
+<div style="text-align: center">
+<img src="build/logo_unu.svg" alt="UNU-EHS logo" height="80" style="padding-left:20px; padding-right:20px" />
+<img src="build/logo_IDB.jpg" alt="IDB logo" height="80" style="padding-left:20px; padding-right:20px"/>
+</div>
+
 This contains the code and documentation for a drought risk analysis for El Salvador. The notebooks explore impacts on maize, beans and sorghum.
 
 ## Setup
