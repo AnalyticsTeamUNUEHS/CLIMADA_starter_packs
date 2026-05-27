@@ -53,3 +53,8 @@ A simple probabilistic drought model implemented for El Salvador under climate c
 ## Contributing
 
 This analysis is intended to support teaching materials and is still under development. If any of the code doesn't work, if something could be added to improve the analysis, or if something could be explained more clearly, please let us know. You can do this by creating a GitHub Issue, or by contacting us by email.
+
+
+## Acknowledgements
+
+This project is funded by the [Inter-American Development Bank](https://www.iadb.org). We thank them for their ideas, guidance and support!
