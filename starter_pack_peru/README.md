@@ -19,4 +19,10 @@ This contains the code and documentation for a flood risk analysis for the city 
     - 03_hazard.ipynb – Mapping the hazard data
     - 04_uncalibrated_risk.ipynb – Running a risk calculation with the uncalibrated data
     - 05a_calibration_housing.ipynb - Calibrating the risk calculation for housing
+- The starter_pack_peru.html file contains these notebooks and their output in a single HTML file
+
+
+## Contributing
+
+This analysis is intended to support teaching materials and is still under development. If any of the code doesn't work, if something could be added to improve the analysis, or if something could be explained more clearly, please let us know. You can do this by creating a GitHub Issue, or by contacting us by email.
 
