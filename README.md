@@ -47,7 +47,7 @@ A simple probabilistic drought model implemented for El Salvador under climate c
 - Set up a virtual environment with CLIMADA installed. The CLIMADA [Getting Started](https://climada-python.readthedocs.io/en/stable/getting-started/index.html) guide explains how.
 - If necessary, set up Jupyter notebooks. You can look up how do this at a system level, which allows the functionality to be reused across environments, or on the command line you can activate your virtual environment (covered in the guide linked above) and run `mamba install jupyter` (you can replace `mamba` with `conda` or with the relevant installation instruction for your environment manager.)
 - Either: Open the folder in your preferred development environment and activate the virtual environment. OR: from the command line activate your virtual environment (covered in the guide linked above) and run `jupyter notebook`.
-- Run these notebooks. You may need to edit the filepaths at the start of each file. Throughout the notebooks parameters can be changed, and datasets can be modified and improved. We encourage you to explore.
+- Run the notebooks in the different starter pack folders. You may need to edit the filepaths at the start of each file. Throughout the notebooks parameters can be changed, and datasets can be modified and improved. We encourage you to explore.
 
 
 ## Contributing
@@ -58,3 +58,4 @@ This analysis is intended to support teaching materials and is still under devel
 ## Acknowledgements
 
 This project is funded by the [Inter-American Development Bank](https://www.iadb.org). We thank them for their ideas, guidance and support!
+

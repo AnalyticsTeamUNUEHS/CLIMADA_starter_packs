@@ -19,6 +19,7 @@ This contains the code and documentation for a drought risk analysis for El Salv
 - Either: Open the folder in your preferred development environment and activate the virtual environment. OR: from the command line activate your virtual environment (covered in the guide linked above) and run `jupyter notebook`.
 - Run these notebooks. You may need to edit the filepaths at the start of each file. Throughout the notebooks parameters can be changed, and datasets can be modified and improved. We encourage you to explore.
 
+
 ## Structure
 
 - The data/ folder contains all the required input data
@@ -27,6 +28,8 @@ This contains the code and documentation for a drought risk analysis for El Salv
     - 02_entity_impact_functions.ipynb – Visualising the impact functions
     - 03_hazard.ipynb – Mapping the hazard data
     - 04_uncalibrated_risk.ipynb – Running a risk calculation with the uncalibrated data
+    - 05_observations.ipynb - Preparing observational data
+    - 06a_calibration_housing.ipynb - Calibrating the risk calculation for housing
 - The starter_pack_el_salvador.html file contains these notebooks and their output in a single HTML file
 
 
