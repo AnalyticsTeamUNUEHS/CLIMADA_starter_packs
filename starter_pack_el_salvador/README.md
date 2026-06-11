@@ -29,7 +29,7 @@ This contains the code and documentation for a drought risk analysis for El Salv
     - 03_hazard.ipynb – Mapping the hazard data
     - 04_uncalibrated_risk.ipynb – Running a risk calculation with the uncalibrated data
     - 05_observations.ipynb - Preparing observational data
-    - 06a_calibration_housing.ipynb - Calibrating the risk calculation for housing
+    - 06a_calibration_maize.ipynb - Calibrating the risk calculation for maize
 - The starter_pack_el_salvador.html file contains these notebooks and their output in a single HTML file
 
 
