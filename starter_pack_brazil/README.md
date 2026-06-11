@@ -1,12 +1,12 @@
 # Starter Pack: Flood risk in Porto Alegre, Brazil
 
-<div style="text-align: center">
-<img src="../build/logo_CLIMADA.png" alt="CLIMADA logo" height="80"/>
+<div align="center" style="text-align: center; margin: 1.25rem 0 0.75rem 0;">
+<img src="../build/logo_CLIMADA.png" alt="CLIMADA logo" height="80" />
 </div>
 
-<div style="text-align: center">
-<img src="../build/logo_unu.svg" alt="UNU-EHS logo" height="80" style="padding-left:20px; padding-right:20px" />
-<img src="../build/logo_IDB.jpg" alt="IDB logo" height="80" style="padding-left:20px; padding-right:20px"/>
+<div align="center" style="text-align: center; margin: 0.75rem 0 1.5rem 0; white-space: nowrap;">
+<img src="../build/logo_unu.svg" alt="UNU-EHS logo" height="80" style="margin: 0 18px; vertical-align: middle;" />
+<img src="../build/logo_IDB.jpg" alt="IDB logo" height="80" style="margin: 0 18px; vertical-align: middle;" />
 </div>
 
 This contains the code and documentation for a flood risk analysis for Porto Alegre in Rio Grande do Sul, Brazil. The notebooks explore impacts on housing, businesses and schools.
