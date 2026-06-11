@@ -1,0 +1,19 @@
+﻿Asset type,Impact type,Units,Value,Note,Source,URL
+Residential,Affected,Buildings,39422,,Porto Alegre,https://gis-smamus.portoalegre.rs.gov.br/portal/apps/dashboards/cc9a1fcb70ac404aa577989354c31b5c
+Schools,Affected,Schools,160,,Porto Alegre,https://gis-smamus.portoalegre.rs.gov.br/portal/apps/dashboards/cc9a1fcb70ac404aa577989354c31b5c
+Business: All,Affected,Businesses,65528,"Sum of Commercial, Industrial, Tourism & Restaurants, and Other",Porto Alegre,https://gis-smamus.portoalegre.rs.gov.br/portal/apps/dashboards/cc9a1fcb70ac404aa577989354c31b5c
+Business: Commercial,Affected,Businesses,18994,,Porto Alegre,https://gis-smamus.portoalegre.rs.gov.br/portal/apps/dashboards/cc9a1fcb70ac404aa577989354c31b5c
+Business: Industrial,Affected,Businesses,6442,,Porto Alegre,https://gis-smamus.portoalegre.rs.gov.br/portal/apps/dashboards/cc9a1fcb70ac404aa577989354c31b5c
+Business: Tourism & Restaurants,Affected,Businesses,7628,,Porto Alegre,https://gis-smamus.portoalegre.rs.gov.br/portal/apps/dashboards/cc9a1fcb70ac404aa577989354c31b5c
+Business: Other,Affected,Businesses,32464,,Porto Alegre,https://gis-smamus.portoalegre.rs.gov.br/portal/apps/dashboards/cc9a1fcb70ac404aa577989354c31b5c
+People,Affected,People,160210,,Porto Alegre,https://gis-smamus.portoalegre.rs.gov.br/portal/apps/dashboards/cc9a1fcb70ac404aa577989354c31b5c
+Residential,Economic loss,R$,1178726000,,IDB,https://publications.iadb.org/pt/avaliacao-dos-efeitos-e-impactos-das-inundacoes-no-rio-grande-do-sul
+Schools,Economic loss,R$,677043000,,IDB,https://publications.iadb.org/pt/avaliacao-dos-efeitos-e-impactos-das-inundacoes-no-rio-grande-do-sul
+Business: All,Economic loss,R$,2437530000,"Sum of Commercial, Industrial, Tourism & Restaurants",IDB,https://publications.iadb.org/pt/avaliacao-dos-efeitos-e-impactos-das-inundacoes-no-rio-grande-do-sul
+Business: Commercial,Economic loss,R$,1345280000,,IDB,https://publications.iadb.org/pt/avaliacao-dos-efeitos-e-impactos-das-inundacoes-no-rio-grande-do-sul
+Business: Industrial,Economic loss,R$,792403000,,IDB,https://publications.iadb.org/pt/avaliacao-dos-efeitos-e-impactos-das-inundacoes-no-rio-grande-do-sul
+Business: Tourism & Restaurants / Service,Economic loss,R$,299847000,,IDB,https://publications.iadb.org/pt/avaliacao-dos-efeitos-e-impactos-das-inundacoes-no-rio-grande-do-sul
+People,Displaced,People,10000,Figure notes not all damage accounted for yet,BD Atlas,
+Residential,Damage,R$,15000000,Figure notes not all damage accounted for yet,BD Atlas,
+Schools,Damaged,Schools,50,Figure notes not all damage accounted for yet,BD Atlas,
+Schools,Damage,R$,3000000,Figure notes not all damage accounted for yet,BD Atlas,
