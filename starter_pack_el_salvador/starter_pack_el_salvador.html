@@ -983,13 +983,9 @@ hazard type.</p>
 <h2 data-number="2.3" id="visualize-the-exposures-points-on-a-map"><span class="header-section-number">2.3</span> Visualize the Exposures: points
 on a map</h2>
 <p>There are a few ways to visualize an Exposures object. Simplest is to
-plot them as points on a map with
-<code>Exposures.plot_basemap</code>.</p>
-<p>In the plots below we can see the different ways that the Exposures
-were created: - The Residential exposures come from a gridded dataset of
-housing information, and covers the whole Porto Alegre region - The
-Schools and Companies exposures come from a database of affected
-locations, and are limited to areas that were impacted by flooding.</p>
+plot them as points on a map with <code>Exposures.plot_basemap</code>.
+This draws a point on the map for each of the Exposures we’re working
+with.</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>matplotlib inline</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> contextily <span class="im">as</span> ctx</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
