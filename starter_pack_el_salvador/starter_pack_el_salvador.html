@@ -977,7 +977,7 @@ columns are used when asset-level insurance is modelled as an adaptation
 measure – for now they should be left blank in the Excel workbook - Each
 exposure point is acted on by an impact function. This is defined here
 in the ‘impf_DR’ column. The last two letters are used to specify the
-hazard type (here: flood) and is used in matching between datasets. A
+hazard type (here: drought) and is used in matching between datasets. A
 column ‘impf_’ with no hazard type is also valid, and will match to any
 hazard type.</p>
 <h2 data-number="2.3" id="visualize-the-exposures-points-on-a-map"><span class="header-section-number">2.3</span> Visualize the Exposures: points
@@ -1110,7 +1110,7 @@ User Guide</a>.</p>
 <pre><code>Reading El_Salvador_Entity_Drought_Maize.xlsx...
 Reading El_Salvador_Entity_Drought_Beans.xlsx...
 Reading El_Salvador_Entity_Drought_Sorghum.xlsx...</code></pre>
-<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>HAZ_TYPE <span class="op">=</span> <span class="st">&quot;DR&quot;</span>  <span class="co"># This is the code we use to indicate impact functions for floods in Impact Functions</span></span>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>HAZ_TYPE <span class="op">=</span> <span class="st">&quot;DR&quot;</span>  <span class="co"># This is the code we use to indicate impact functions for drought in Impact Functions</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co"># We can then store the impact function sets in their own dict:</span></span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>impf_set_dict <span class="op">=</span> {crop: entity.impact_funcs <span class="cf">for</span> crop, entity <span class="kw">in</span> entity_dict.items()}</span>
@@ -1314,13 +1314,11 @@ anyway</p>
 <span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    new_haz.intensity[new_haz.intensity <span class="op">&gt;</span> <span class="dv">0</span>] <span class="op">=</span> <span class="dv">0</span></span>
 <span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>    haz_masked_dict[crop] <span class="op">=</span> new_haz</span></code></pre></div>
 <p><strong>Note:</strong> In the Starter Pack for Peru, we subset the
-Hazard to include only Centroids that have a hazard &gt; 0. This is
-because centroids without hazard are unhelpful in the analysis (since
-the flood hazard shows street-level flooding, with building rooftops
-unaffected: we wanted to remove centroids corresponding to the
-rooftops). The flood footprint here is different, and zero-valued hazard
-is valuable to include, since it shows us locations that were
-<em>not</em> flooded, which we want to know.</p>
+Hazard to include only Centroids that have a hazard &gt; 0. This is a
+decision following the high resolution of the hazard data. The drought
+data here is different, and zero-valued (and positive-valued) hazard is
+valuable to include, since it shows us any locations <em>not</em>
+affected by drought, which we want to know.</p>
 <h2 data-number="4.2" id="plotting-hazards"><span class="header-section-number">4.2</span> Plotting hazards</h2>
 <p>We can visualise hazards using methods in the <code>Hazard</code>
 class. This drought hazard is defined on an underlying regular grid.</p>
