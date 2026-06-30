@@ -1,0 +1,7 @@
+﻿historical_depth_map,historical_return_period,future_return_period_2050,interpretation,historical_frequency,future_frequency_2050
+HIST_RP_10,10,5,Historical RP10 depth becomes future RP5,0.1,0.2
+HIST_RP_20,20,10,Historical RP20 depth becomes future RP10,0.05,0.1
+HIST_RP_50,50,20,Historical RP50 depth becomes future RP20,0.02,0.05
+HIST_RP_100,100,50,Historical RP100 depth becomes future RP50,0.01,0.02
+HIST_RP_200,200,100,Historical RP200 depth becomes future RP100,0.005,0.01
+HIST_RP_500,500,200,Historical RP500 depth becomes future RP200,0.002,0.005
