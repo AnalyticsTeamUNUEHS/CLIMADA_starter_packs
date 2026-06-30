@@ -15,6 +15,11 @@ This repository contains risk analysis starter packs to use with the CLIMADA pla
 The starter packs are designed to show different parts of CLIMADA in action, and are designed as an accompaniment to teaching materials and to the full, in-depth CLIMADA documentation at [https://climada-python.readthedocs.io/](https://climada-python.readthedocs.io/).
 
 
+**Recent updates:**
+
+- 2026-06-30: add a cost-benefit calculation notebook for Brazil, plus necessary input data.
+
+
 ## Contents
 
 
