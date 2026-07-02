@@ -55,12 +55,13 @@ jobs:
         uses: mamba-org/setup-micromamba@v2
         with:
           environment-file: ci/environment.generated.yml
+          activate-environment: starter-packs-ci
           cache-environment: true
           cache-downloads: true
           init-shell: bash
 
       - name: Execute notebooks
-        shell: bash -l {0}
+        shell: micromamba-shell {0}
         env:
           MODE: "0"
           EXECUTION_TIMEOUT: "7200"
@@ -125,16 +126,13 @@ jobs:
         uses: mamba-org/setup-micromamba@v2
         with:
           environment-file: ci/environment.generated.yml
+          activate-environment: starter-packs-ci
           cache-environment: true
           cache-downloads: true
           init-shell: bash
 
-      - name: Ensure test output directory exists
-        shell: bash -l {0}
-        run: mkdir -p build/test_notebooks
-
       - name: Execute notebooks
-        shell: bash -l {0}
+        shell: micromamba-shell {0}
         env:
           MODE: "0"
           EXECUTION_TIMEOUT: "7200"
