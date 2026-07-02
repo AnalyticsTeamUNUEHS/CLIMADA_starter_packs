@@ -46,6 +46,8 @@ jobs:
             - defaults
           dependencies:
             - python=${{ matrix.python-version }}
+            - jupyter
+            - nbconvert
             - pip
             - pip:
                 - climada==${{ matrix.climada-spec }}
@@ -117,6 +119,8 @@ jobs:
           dependencies:
             - python=${{ matrix.python-version }}
             - pip
+            - jupyter
+            - nbconvert
             - pip:
                 - climada==${{ matrix.climada-spec }}
           EOF
