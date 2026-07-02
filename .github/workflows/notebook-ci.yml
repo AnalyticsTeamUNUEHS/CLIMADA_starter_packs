@@ -55,20 +55,19 @@ jobs:
         uses: mamba-org/setup-micromamba@v2
         with:
           environment-file: ci/environment.generated.yml
-          activate-environment: starter-packs-ci
+          environment-name: starter-packs-ci
           cache-environment: true
           cache-downloads: true
           init-shell: bash
 
       - name: Execute notebooks
-        shell: micromamba-shell {0}
+        shell: bash -l {0}
         env:
           MODE: "0"
           EXECUTION_TIMEOUT: "7200"
           FAIL_FAST: "1"
         run: |
-          chmod +x ./test_build.sh
-          ./test_build.sh
+          micromamba run -n starter-packs-ci bash -lc 'chmod +x ./test_build.sh && ./test_build.sh'
 
       - name: Upload executed notebooks
         if: always()
@@ -126,20 +125,19 @@ jobs:
         uses: mamba-org/setup-micromamba@v2
         with:
           environment-file: ci/environment.generated.yml
-          activate-environment: starter-packs-ci
+          environment-name: starter-packs-ci
           cache-environment: true
           cache-downloads: true
           init-shell: bash
 
       - name: Execute notebooks
-        shell: micromamba-shell {0}
+        shell: bash -l {0}
         env:
           MODE: "0"
           EXECUTION_TIMEOUT: "7200"
           FAIL_FAST: "1"
         run: |
-          chmod +x ./test_build.sh
-          ./test_build.sh
+          micromamba run -n starter-packs-ci bash -lc 'chmod +x ./test_build.sh && ./test_build.sh'
 
       - name: Upload executed notebooks
         if: always()
