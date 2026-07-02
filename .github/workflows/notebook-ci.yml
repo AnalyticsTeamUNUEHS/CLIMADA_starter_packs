@@ -43,12 +43,15 @@ jobs:
           name: starter-packs-ci
           channels:
             - conda-forge
+            - defaults
           dependencies:
             - python=${{ matrix.python-version }}
-            - climada=${{ matrix.climada-spec }}
             - jupyter
             - nbconvert
             - openpyxl
+            - pip
+            - pip:
+                - climada==${{ matrix.climada-spec }}
           EOF
 
       - name: Set up micromamba environment
@@ -113,12 +116,15 @@ jobs:
           name: starter-packs-ci
           channels:
             - conda-forge
+            - defaults
           dependencies:
             - python=${{ matrix.python-version }}
-            - climada=${{ matrix.climada-spec }}
             - jupyter
             - nbconvert
             - openpyxl
+            - pip
+            - pip:
+                - climada==${{ matrix.climada-spec }}
           EOF
 
       - name: Set up micromamba environment
