@@ -95,11 +95,12 @@ jobs:
             climada-label: "6.1"
             climada-spec: "6.1.*"
           - python-version: "3.11"
-            climada-label: "5"
-            climada-spec: "5.*"
-          - python-version: "3.10"
-            climada-label: "6.1"
-            climada-spec: "6.1.*"
+            climada-label: "6.0"
+            climada-spec: "6.0.*"
+          - python-version: "3.11"
+            climada-label: "5.0"
+            climada-spec: "5.0.*"
+
 
     steps:
       - name: Checkout repository
