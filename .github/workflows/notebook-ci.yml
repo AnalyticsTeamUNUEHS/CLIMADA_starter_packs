@@ -48,9 +48,7 @@ jobs:
             - python=${{ matrix.python-version }}
             - jupyter
             - nbconvert
-            - pip
-            - pip:
-                - climada==${{ matrix.climada-spec }}
+            - climada==${{ matrix.climada-spec }}
           EOF
 
       - name: Set up micromamba environment
@@ -109,11 +107,9 @@ jobs:
             - defaults
           dependencies:
             - python=${{ matrix.python-version }}
-            - pip
             - jupyter
             - nbconvert
-            - pip:
-                - climada==${{ matrix.climada-spec }}
+            - climada==${{ matrix.climada-spec }}
           EOF
 
       - name: Set up micromamba environment
