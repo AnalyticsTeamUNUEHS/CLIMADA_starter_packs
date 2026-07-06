@@ -30,6 +30,7 @@ This contains the code and documentation for a flood risk analysis for the city 
     - 04_uncalibrated_risk.ipynb – Running a risk calculation with the uncalibrated data
     - 05_observations.ipynb - Processing observations required for return-period-based calibration
     - 06a_calibration_residential.ipynb - Calibrating the risk calculation for housing
+    - 07_future_risk.ipynb - Adding future hazard and exposure data and quantifying the change in risk
 - starter_pack_peru.html contains these notebooks and their output in a single HTML file
 
 

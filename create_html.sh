@@ -15,7 +15,7 @@ for pack_dir in "$ROOT_DIR"/starter_pack_*; do
 
 	sources+=("$pack_dir/README.md")
 
-	for nb in "$pack_dir"/notebooks/*.ipynb; do
+	for nb in "$pack_dir"/notebooks/[0-9]*.ipynb; do
 		sources+=("$nb")
 	done
 
@@ -35,7 +35,7 @@ for pack_dir in "$ROOT_DIR"/starter_pack_*; do
 
 		echo "Creating file $out_md"
 		if [[ "$ext" == "md" ]]; then
-			pandoc "$src" -t gfm -o "$out_md"
+			cp "$src" "$out_md"
 		elif [[ "$ext" == "ipynb" ]]; then
 			jupyter nbconvert --to markdown "$src" --output "${out_md:t:r}" --output-dir "$TMP_DIR"
 		fi

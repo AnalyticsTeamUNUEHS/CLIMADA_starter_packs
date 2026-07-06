@@ -17,6 +17,8 @@ The starter packs are designed to show different parts of CLIMADA in action, and
 
 **Recent updates:**
 
+- 2027-07-03: add El Salvador future risk data and calculations notebook
+- 2027-07-02: add Peru future risk data and calculations notebook
 - 2026-06-30: add a cost-benefit calculation notebook for Brazil, plus necessary input data.
 - 2026-06-30: update Entity files in all Case Studies for better compatibility across operating systems. Fix missing data in Peru Entity files.
 
