@@ -15,7 +15,7 @@ This repository contains risk analysis starter packs to use with the CLIMADA pla
 The starter packs are designed to show different parts of CLIMADA in action, and are designed as an accompaniment to teaching materials and to the full, in-depth CLIMADA documentation at [https://climada-python.readthedocs.io/](https://climada-python.readthedocs.io/).
 
 
-## You are on the branch for CLIMADA Version 6.0
+## You are on the branch for CLIMADA Version 5.0
 
 This branch was created for compatibility with CLIMADA version 6.0. If you are using version 6.1 (the most recent version as of July 2026), change to the `main` branch.
 
