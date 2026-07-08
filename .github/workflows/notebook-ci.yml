@@ -14,70 +14,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  fast-lane:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    name: fast-lane (${{ matrix.os }}, py${{ matrix.python-version }}, climada-${{ matrix.climada-spec }})
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 240
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-          - ubuntu-latest
-          - windows-latest
-        python-version:
-          - "3.11"
-        climada-spec:
-          - "6.1.0"
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Create CI environment file
-        shell: bash -l {0}
-        run: |
-          cat > ci/environment.generated.yml <<'EOF'
-          name: starter-packs-ci
-          channels:
-            - conda-forge
-            - defaults
-          dependencies:
-            - python=${{ matrix.python-version }}
-            - jupyter
-            - nbconvert
-            - climada==${{ matrix.climada-spec }}
-          EOF
-
-      - name: Set up micromamba environment
-        uses: mamba-org/setup-micromamba@v2
-        with:
-          environment-file: ci/environment.generated.yml
-          environment-name: starter-packs-ci
-          cache-environment: true
-          cache-downloads: true
-          init-shell: bash
-
-      - name: Execute notebooks
-        shell: bash -l {0}
-        env:
-          MODE: "0"
-          EXECUTION_TIMEOUT: "7200"
-          FAIL_FAST: "1"
-        run: |
-          micromamba run -n starter-packs-ci bash -lc 'chmod +x ./test_build.sh && ./test_build.sh'
-
-      - name: Upload executed notebooks
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: executed-notebooks-fast-${{ matrix.os }}-py${{ matrix.python-version }}-climada${{ matrix.climada-spec }}
-          path: build/test_notebooks/
-          if-no-files-found: ignore
-
-  full:
-    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-    name: full (${{ matrix.os }}, py${{ matrix.python-version }}, climada-${{ matrix.climada-spec }})
+  main:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    name: main (${{ matrix.os }}, py${{ matrix.python-version }}, climada-${{ matrix.climada-spec }})
     runs-on: ${{ matrix.os }}
     timeout-minutes: 240
     strategy:
@@ -91,8 +30,6 @@ jobs:
           - "3.11"
           - "3.12"
         climada-spec:
-          - "5.0.0"
-          - "6.0.1"
           - "6.1.0"
 
     steps:
@@ -136,6 +73,132 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: executed-notebooks-full-${{ matrix.os }}-py${{ matrix.python-version }}-climada${{ matrix.climada-spec }}
+          name: executed-notebooks-main-${{ matrix.os }}-py${{ matrix.python-version }}-climada${{ matrix.climada-spec }}
+          path: build/test_notebooks/
+          if-no-files-found: ignore
+
+  climada601:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/climada601'
+    name: climada601 (${{ matrix.os }}, py${{ matrix.python-version }}, climada-${{ matrix.climada-spec }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+        python-version:
+          - "3.10"
+          - "3.11"
+          - "3.12"
+        climada-spec:
+          - "6.0.1"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create CI environment file
+        shell: bash -l {0}
+        run: |
+          cat > ci/environment.generated.yml <<'EOF'
+          name: starter-packs-ci
+          channels:
+            - conda-forge
+            - defaults
+          dependencies:
+            - python=${{ matrix.python-version }}
+            - jupyter
+            - nbconvert
+            - climada==${{ matrix.climada-spec }}
+          EOF
+
+      - name: Set up micromamba environment
+        uses: mamba-org/setup-micromamba@v2
+        with:
+          environment-file: ci/environment.generated.yml
+          environment-name: starter-packs-ci
+          cache-environment: true
+          cache-downloads: true
+          init-shell: bash
+
+      - name: Execute notebooks
+        shell: bash -l {0}
+        env:
+          MODE: "0"
+          EXECUTION_TIMEOUT: "7200"
+          FAIL_FAST: "1"
+        run: |
+          micromamba run -n starter-packs-ci bash -lc 'chmod +x ./test_build.sh && ./test_build.sh'
+
+      - name: Upload executed notebooks
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: executed-notebooks-climada601-${{ matrix.os }}-py${{ matrix.python-version }}-climada${{ matrix.climada-spec }}
+          path: build/test_notebooks/
+          if-no-files-found: ignore
+
+
+  climada5:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/climada5'
+    name: climada5 (${{ matrix.os }}, py${{ matrix.python-version }}, climada-${{ matrix.climada-spec }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+        python-version:
+          - "3.10"
+          - "3.11"
+        climada-spec:
+          - "5.0.0"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create CI environment file
+        shell: bash -l {0}
+        run: |
+          cat > ci/environment.generated.yml <<'EOF'
+          name: starter-packs-ci
+          channels:
+            - conda-forge
+            - defaults
+          dependencies:
+            - python=${{ matrix.python-version }}
+            - jupyter
+            - nbconvert
+            - climada==${{ matrix.climada-spec }}
+          EOF
+
+      - name: Set up micromamba environment
+        uses: mamba-org/setup-micromamba@v2
+        with:
+          environment-file: ci/environment.generated.yml
+          environment-name: starter-packs-ci
+          cache-environment: true
+          cache-downloads: true
+          init-shell: bash
+
+      - name: Execute notebooks
+        shell: bash -l {0}
+        env:
+          MODE: "0"
+          EXECUTION_TIMEOUT: "7200"
+          FAIL_FAST: "1"
+        run: |
+          micromamba run -n starter-packs-ci bash -lc 'chmod +x ./test_build.sh && ./test_build.sh'
+
+      - name: Upload executed notebooks
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: executed-notebooks-climada5-${{ matrix.os }}-py${{ matrix.python-version }}-climada${{ matrix.climada-spec }}
           path: build/test_notebooks/
           if-no-files-found: ignore

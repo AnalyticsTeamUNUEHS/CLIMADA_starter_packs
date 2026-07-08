@@ -15,12 +15,9 @@ This repository contains risk analysis starter packs to use with the CLIMADA pla
 The starter packs are designed to show different parts of CLIMADA in action, and are designed as an accompaniment to teaching materials and to the full, in-depth CLIMADA documentation at [https://climada-python.readthedocs.io/](https://climada-python.readthedocs.io/).
 
 
-**Recent updates:**
+## You are on the branch for CLIMADA Version 6.0
 
-- 2027-07-03: add El Salvador future risk data and calculations notebook
-- 2027-07-02: add Peru future risk data and calculations notebook
-- 2026-06-30: add a cost-benefit calculation notebook for Brazil, plus necessary input data.
-- 2026-06-30: update Entity files in all Case Studies for better compatibility across operating systems. Fix missing data in Peru Entity files.
+This branch was created for compatibility with CLIMADA version 6.0. If you are using version 6.1 (the most recent version as of July 2026), change to the `main` branch.
 
 
 ## Contents
@@ -57,6 +54,15 @@ A simple probabilistic drought model implemented for El Salvador under climate c
 - If necessary, set up Jupyter notebooks. You can look up how do this at a system level, which allows the functionality to be reused across environments, or on the command line you can activate your virtual environment (covered in the guide linked above) and run `mamba install jupyter` (you can replace `mamba` with `conda` or with the relevant installation instruction for your environment manager.)
 - Either: Open the folder in your preferred development environment and activate the virtual environment. OR: from the command line activate your virtual environment (covered in the guide linked above) and run `jupyter notebook`.
 - Run the notebooks in the different starter pack folders. You may need to edit the filepaths at the start of each file. Throughout the notebooks parameters can be changed, and datasets can be modified and improved. We encourage you to explore.
+
+
+## CLIMADA versions and compatibility
+
+The code in this repository should work on Windows, MacOS or Linux.
+
+- The `main` branch is designed for CLIMADA v6.1.0, and has been tested with Python 3.10, 3.11 and 3.12
+- The `climada601` branch is designed for CLIMADA v6.0.1, and has been tested with Python 3.10, 3.11 and 3.12
+- The `climada5` branch is designed for CLIMADA v5.0.0, and has been tested with Python 3.10 and 3.11
 
 
 ## Contributing
