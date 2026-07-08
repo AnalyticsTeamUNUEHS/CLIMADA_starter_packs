@@ -73,7 +73,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: executed-notebooks-fast-${{ matrix.os }}-py${{ matrix.python-version }}-climada${{ matrix.climada-spec }}
+          name: executed-notebooks-main-${{ matrix.os }}-py${{ matrix.python-version }}-climada${{ matrix.climada-spec }}
           path: build/test_notebooks/
           if-no-files-found: ignore
 
@@ -136,7 +136,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: executed-notebooks-full-${{ matrix.os }}-py${{ matrix.python-version }}-climada${{ matrix.climada-spec }}
+          name: executed-notebooks-climada601-${{ matrix.os }}-py${{ matrix.python-version }}-climada${{ matrix.climada-spec }}
           path: build/test_notebooks/
           if-no-files-found: ignore
 
@@ -199,6 +199,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: executed-notebooks-full-${{ matrix.os }}-py${{ matrix.python-version }}-climada${{ matrix.climada-spec }}
+          name: executed-notebooks-climada5-${{ matrix.os }}-py${{ matrix.python-version }}-climada${{ matrix.climada-spec }}
           path: build/test_notebooks/
           if-no-files-found: ignore

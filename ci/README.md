@@ -7,22 +7,43 @@ This folder contains configuration for automated notebook execution checks in Gi
 The workflow at [.github/workflows/notebook-ci.yml](../.github/workflows/notebook-ci.yml) runs notebook tests when:
 
 - Code is pushed to the main branch.
+- Code is pushed to the climada601 branch.
+- Code is pushed to the climada5 branch.
 - A pull request targets the main branch.
 - A run is started manually from the Actions tab.
 
 It executes [test_build.sh](../test_build.sh), which runs all notebooks in starter pack notebook folders and fails the job if any notebook fails.
 
-The workflow has two lanes:
+## Job behavior by branch/event
 
-- Fast lane (push to main): Python 3.11 + CLIMADA 6.1.* on Ubuntu and Windows.
-- Full lane (pull requests and manual runs): Python 3.11 and 3.12 with CLIMADA 6.1.* and 5.* on Ubuntu and Windows.
+- `main` job runs for:
+	- Push to `main`
+	- Pull requests targeting `main`
+	- Manual dispatch (`workflow_dispatch`)
 
-## Operating systems covered
+- `climada601` job runs only for:
+	- Push to `climada601`
 
-The workflow runs in a matrix on:
+- `climada5` job runs only for:
+	- Push to `climada5`
 
-- ubuntu-latest
-- windows-latest
+## Version matrix
+
+- `main`:
+	- OS: `ubuntu-latest`, `windows-latest`
+	- Python: `3.10`, `3.11`, `3.12`
+	- CLIMADA: `6.1.0`
+
+- `climada601`:
+	- OS: `ubuntu-latest`, `windows-latest`
+	- Python: `3.10`, `3.11`, `3.12`
+	- CLIMADA: `6.0.1`
+
+- `climada5`:
+	- OS: `ubuntu-latest`, `windows-latest`
+	- Python: `3.10`, `3.11`
+	- CLIMADA: `5.0.0`
+
 
 ## Where results are stored
 
@@ -36,10 +57,20 @@ To access them:
 4. In the run summary, find Artifacts.
 5. Download the artifacts for the lane and matrix combination you want.
 
-Artifact naming:
+Artifact naming follows the convention: `executed-notebooks-<branch>-<os>-py<python>-climada<spec>`
 
-- Fast lane: executed-notebooks-fast-<os>-py<python>-climada<major_minor>
-- Full lane: executed-notebooks-full-<os>-py<python>-climada<major_minor>
+
+## Runtime settings
+
+All jobs execute notebooks with the same environment variables:
+
+- `MODE=0`
+- `EXECUTION_TIMEOUT=7200`
+- `FAIL_FAST=1`
+
+Each job creates `ci/environment.generated.yml` from its matrix values, then runs:
+
+- `micromamba run -n starter-packs-ci bash -lc 'chmod +x ./test_build.sh && ./test_build.sh'`
 
 ## Caching behavior
 
