@@ -59,6 +59,15 @@ A simple probabilistic drought model implemented for El Salvador under climate c
 - Run the notebooks in the different starter pack folders. You may need to edit the filepaths at the start of each file. Throughout the notebooks parameters can be changed, and datasets can be modified and improved. We encourage you to explore.
 
 
+## CLIMADA versions and compatibility
+
+The code in this repository should work on Windows, MacOS or Linux.
+
+- The `main` branch is designed for CLIMADA v6.1.0, and has been tested with Python 3.10, 3.11 and 3.12
+- The `climada601` branch is designed for CLIMADA v6.0.1, and has been tested with Python 3.10, 3.11 and 3.12
+- The `climada5` branch is designed for CLIMADA v5.0.0, and has been tested with Python 3.10 and 3.11
+
+
 ## Contributing
 
 This analysis is intended to support teaching materials and is still under development. If any of the code doesn't work, if something could be added to improve the analysis, or if something could be explained more clearly, please let us know. You can do this by creating a GitHub Issue, or by contacting us by email.
