@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   main:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     name: main (${{ matrix.os }}, py${{ matrix.python-version }}, climada-${{ matrix.climada-spec }})
     runs-on: ${{ matrix.os }}
     timeout-minutes: 240
