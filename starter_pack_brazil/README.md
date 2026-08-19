@@ -32,6 +32,29 @@ This contains the code and documentation for a flood risk analysis for Porto Ale
     - 09_costbenefit.ipynb - Running a cost-benefit assessment for adaptation measures
 - The starter_pack_brazil.html file contains these notebooks and their output in a single HTML file
 
+## Adaptation and cost-benefit exercise (Residential, Companies)
+
+Built on top of the notebooks above, this exercise extends the cost-benefit assessment from
+Schools to all three asset types and adds a depth-damage curve correction found along the way:
+
+- 06b_calibration_residential_companies.ipynb – Calibrating impact functions for Residential and Companies (mirrors 06a's method)
+- 10_costbenefit_additional_measures.ipynb – Schools cost-benefit with 6 measures (the original 3 plus 3 more)
+- 11_costbenefit_residential.ipynb / 12_costbenefit_companies.ipynb – The same 6-measure cost-benefit assessment applied to Residential and Companies
+
+The headline finding is a depth-damage curve fix: Residential and Companies originally used
+day-duration-calibrated loss curves; these are replaced with the JRC (Huizinga et al. 2017)
+depth-damage curves already used (unlabeled) in the shipped Schools entity. See
+`report/report_brazil_adaptation_exercise_en.pdf` (or the Portuguese
+`report_brazil_adaptation_exercise_pt.pdf`) for the full methodology, results for all 18
+measures (6 per asset x 3 assets), and this finding's derivation. `notebooks/README.md`
+indexes the numbered `.py` pipeline scripts that built the inputs for these notebooks —
+they aren't needed to reproduce the results (all Entity/HDF5 outputs are already committed
+under `data/`), only for provenance or adapting the exercise to a new asset type or country.
+
+`outputs/` holds the resulting figures (cost-benefit charts, benefits by return period,
+waterfall, expected-annual-impact maps, and depth maps with relocation points) for all
+three asset types.
+
 
 ## Contributing
 

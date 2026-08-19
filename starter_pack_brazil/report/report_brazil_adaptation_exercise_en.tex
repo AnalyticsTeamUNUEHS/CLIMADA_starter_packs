@@ -1,0 +1,1077 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{needspace}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{longtable}
+
+\title{Adaptation Measures and Cost-Benefit Analysis:\\Brazil Case Study (Porto Alegre)}
+\author{
+Alisson Tallys Geraldo Fiorentin$^{1}$ \and
+Henrique Sanchez Franz$^{2}$ \and
+Leonardo Laipelt$^{1}$ \and
+Gabriel Matte Rios$^{1}$
+}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{center}
+\footnotesize
+$^{1}$Federal University of Rio Grande do Sul (UFRGS) \quad
+$^{2}$Federal University of Rio Grande (FURG)
+\end{center}
+\vspace{1em}
+
+\begin{abstract}
+This report documents the extension of the Brazil case study of the IDB RiskHub / CLIMADA
+(UNU-EHS) Starter Pack, covering flood risk in Porto Alegre, Rio Grande do Sul, for three
+asset types: Schools, Residential, and Companies. Building on the existing Schools example,
+the exercise calibrated Residential and Companies, parametrized six adaptation measures per
+asset (eighteen in total, covering all six CLIMADA measure mechanisms), and ran a
+cost-benefit analysis for the period 2025 to 2050. The cost-benefit analysis uses a
+return-period depth hazard, so Residential and Companies are assigned a depth-damage curve
+from the literature \citep{huizinga2017}, matched by physical unit to that hazard and
+consistent with the curve already used for Schools. Because this curve's amplitude is a
+regional literature default, it is calibrated locally by anchoring it to the real loss
+observed during the 2024 flood event, using the return-period depth raster whose flooded
+extent most closely matches that event as the physical reference point. The resulting
+totals are: total climate risk of 320.348 million USD for Schools, 470.267 million USD for
+Residential, and 828.925 million USD for Companies. Under this risk estimate, Companies'
+six measures remain economically justified, while none of Residential's six measures, at
+their currently parametrized cost, pay for themselves. We trace this asymmetry to two
+compounding causes: several of Residential's measure costs reflect city-scale programme
+budgets that are large relative to its real risk, and Residential's risk, once anchored to
+observed loss, is small relative to its very large total exposed value. This is a
+decision-relevant finding, not a modelling failure.
+\end{abstract}
+
+\newpage
+\tableofcontents
+\newpage
+
+\section{Introduction}
+
+The IDB RiskHub intersessional assignment asks each participant to work with one or more
+calibrated asset types from their country's Starter Pack, select three adaptation measures
+relevant to the case study (Brazil participants: three \emph{additional} measures, since
+Schools already shipped with three), parametrize those measures in the Entity file with
+realistic implementation and maintenance costs and a defined effect on the risk
+calculation, run a cost-benefit analysis using the Brazil example notebook, refine the
+parametrization until the results appear realistic, and prepare figures suitable for
+presentation to decision makers. Participants are further encouraged to calibrate any
+remaining uncalibrated assets in their case study, and to note ideas for improving the
+Starter Packs.
+
+For Brazil, the three-additional-measures rule applies because the Schools entity already
+shipped with three measures (river dredging, levee rebuilding, and an early warning
+system). Residential and Companies had no real pre-existing measures, only an inert
+placeholder row, so the rule was applied uniformly across all three asset types: three
+baseline measures plus three additional measures, six total per asset, eighteen in total.
+Applying it uniformly rather than adding three measures only to Schools keeps the three
+assets directly comparable, which matters because the most decision-relevant results in this
+report come from contrasting how the same six mechanisms perform against three very
+different exposure bases.
+
+This report covers four areas of work: the calibration of Residential and Companies, which
+was not previously available in the pack; the parametrization of six adaptation measures
+per asset, covering all six CLIMADA measure mechanisms; the derivation and local
+calibration of the depth-damage curve used for Residential and Companies in the
+cost-benefit analysis; and the production of figures and tables suitable for decision
+makers. A companion investigation, prompted by the result that none of Residential's
+measures pay for themselves, confirmed that this is not a reproducibility issue (Section
+\ref{sec:root-cause} and the verification notes in Appendix~\ref{app:notes}).
+
+\section{Methodology}
+
+\subsection{Environment}
+
+The analysis uses CLIMADA version 6.1.0 \citep{climada2026}, pinned deliberately: version 7,
+expected later in 2026, rewrites the Measures and CostBenefit modules used throughout this
+exercise. Anyone reproducing these results should pin the same version rather than take the
+latest release, since the Entity-file and cost-benefit interfaces this exercise depends on
+are the ones scheduled to change. The commands below create that environment from scratch
+and end with the library's own test suite, which should report \texttt{OK} before any
+notebook is run.
+
+\begin{verbatim}
+conda create -n climada_env --override-channels -c conda-forge climada=6.1.0 \
+    notebook nbconvert -y
+conda activate climada_env
+python -m unittest climada.engine.test.test_impact   # must end in "OK"
+\end{verbatim}
+
+\subsection{Baseline Reproduction}
+\label{sec:baseline}
+
+The pack's original notebook, \texttt{09\_costbenefit.ipynb}, was executed unmodified to
+confirm the environment. It reproduced the documented reference numbers exactly: total
+climate risk 320.348 million USD, average annual risk 19.0853 million USD, residual risk
+minus 165.334 million USD, using three measures (river dredging, levee rebuilding, early
+warning system) on the Schools asset. As an independent check on this session's own
+environment, the same notebook was re-executed a second time, from a pristine clone of the
+upstream Starter Pack repository, with zero modifications from any working session. It
+reproduced the same three figures exactly, confirming that the CLIMADA library and the
+cost-benefit method work correctly and are not sensitive to local environment
+peculiarities.
+
+That same check on the upstream repository showed that the Starter Pack, as published,
+ships a complete cost-benefit example only for Schools. Residential and Companies exist
+upstream only as uncalibrated Entity files, with no measures and no prior cost-benefit
+analysis of any kind. The calibration and cost-benefit work for those two assets, described
+in the remainder of this report, is therefore a first attempt, not a reproduction of an
+existing, previously validated result.
+
+\subsection{Calibration of Residential and Companies}
+\label{sec:calibration}
+
+Schools was already calibrated in the pack; Residential and Companies were not. The method
+follows the one used in \texttt{06a\_calibration\_schools.ipynb}: a two-dimensional grid
+search over the parameters \texttt{max\_damage} and \texttt{max\_intensity}, scaling a
+first-guess curve against the 2024 event's flood-duration hazard, followed by a fine
+one-dimensional refinement once the coarse grid identifies the neighborhood of the optimum.
+The search space is set independently for each asset rather than reused from Schools,
+because the three assets differ enormously in exposure scale and in the ratio between
+exposed value and observed loss. Residential, for example, is a whole-city grid, with 69.3
+billion USD of exposed value against 212 million USD of observed loss, about 0.3 percent,
+so the search space is widened to allow \texttt{max\_damage} down to 0.01, well below the
+range that would be appropriate for an asset with a higher damage ratio such as Schools.
+Companies, with a smaller and more concentrated exposure base, is calibrated over its own
+search space in the same way. The resulting fits, summarized in Table \ref{tab:calibration},
+reproduce the observed 2024 loss for both assets to within one percent.
+
+\begin{table}[H]
+\centering
+\caption{Calibration results for Residential and Companies. Only \texttt{max\_damage} is
+identified by the data; \texttt{max\_intensity} is not, for the reasons given below.}
+\label{tab:calibration}
+\small
+\begin{tabular}{lrrrr}
+\toprule
+Asset & max\_damage (identified) & Modelled loss (USD) & Observed loss (USD) & Error \\
+\midrule
+Residential & 0.028 & 212{,}265{,}415 & 212{,}170{,}680 & 0.04\% \\
+Companies & 0.296 & 442{,}034{,}021 & 438{,}755{,}400 & 0.75\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table \ref{tab:calibration} deliberately reports only \texttt{max\_damage}, even though the
+grid search fits two parameters. The reason is that only \texttt{max\_damage} is actually
+identified by the data. This is a known property of the method, documented in the pack's
+own \texttt{06a} notebook: calibrating two free parameters against a single aggregate
+target leaves one degree of freedom, so for every \texttt{max\_intensity} there exists a
+\texttt{max\_damage} that reproduces the observation. Our own sweep confirms it directly:
+holding \texttt{max\_intensity} fixed at values from 0.25 to 79.75 days, spanning the
+entire searched range, a fine search over \texttt{max\_damage} still reaches an error under
+3 percent for Residential and under 0.5 percent for Companies at every value tested.
+
+The mechanism behind this degeneracy is specific to the severity of the 2024 event. Median
+flood duration at the exposure points is 48 days for Residential and 29 days for Companies,
+while the scaled curve reaches its maximum damage at roughly \texttt{max\_intensity}
+divided by three. Consequently the great majority of flooded exposed value, about 93
+percent for Residential and 91 percent for Companies at the values the search selected,
+sits on the flat, saturated part of the curve, where modelled loss no longer depends on
+duration at all. The model effectively collapses to the product of \texttt{max\_damage} and
+the total flooded exposed value, which pins \texttt{max\_damage} analytically at 0.0277 for
+Residential and 0.2942 for Companies, within 1.2 and 0.4 percent of the values in Table
+\ref{tab:calibration}, and leaves \texttt{max\_intensity} almost unconstrained.
+
+Two diagnostics confirm that the fitted \texttt{max\_intensity} carries no information. Both
+assets settled on opposite edges of the permitted box, Residential at 28.75 days, the
+largest value the inherited bound allows, and Companies at 0.25 days, the first point of
+the grid: the signature of an optimizer sliding along a flat objective until it meets a
+constraint. The Companies value is also physically implausible on its own terms, since a
+curve saturating at 0.25 days would imply that a business flooded for two hours suffers the
+same damage as one flooded for the full 91 days the event lasted. The stored curves retain
+these values (28.75 and 0.25 days) for traceability with the notebooks, but they are
+reported here as an artifact of the search, not as an estimate. Resolving the ambiguity
+properly would require the same kind of asset-specific expert judgement the pack applies to
+Schools, which in turn requires local evidence on how residential and commercial losses
+scale with flood duration that this exercise does not have. None of this affects the
+cost-benefit results in Section \ref{sec:results}, since the day-based curve is not the one
+used there.
+
+These calibrated curves, stored under \texttt{data/entity\_files\_calibrated/}, are valid
+for reconstructing the single 2024 event, whose hazard footprint is measured in flood
+duration (days). The cost-benefit analysis, by contrast, runs on a return-period depth
+hazard (meters); it therefore uses a separate, depth-based damage curve, described in
+Section \ref{sec:depth-curve}, matched by physical unit to that hazard. Keeping the two
+curves in separate files rather than overwriting one with the other is deliberate: each
+remains correct for its own hazard, and the separation makes it impossible to feed a
+duration-calibrated curve into a depth-based calculation by accident.
+
+\subsection{Adaptation Measures and Mechanisms}
+
+Each asset received six measures: three that shipped with the pack or follow the same
+mechanism family for Residential and Companies, and three additional measures selected for
+this exercise, following the intersessional brief's instruction to select measures relevant
+to the case study and parametrize their effect on the risk calculation explicitly. Rather
+than varying only the numeric parameters of a single mechanism, the eighteen measures were
+designed to cover all six adaptation mechanisms CLIMADA supports, spread across the three
+assets so that each mechanism is demonstrated at least once. This choice is deliberate: a
+decision maker comparing measures that differ only in cost learns less than one comparing
+measures that intervene on the risk calculation in genuinely different ways.
+
+\begin{table}[H]
+\centering
+\caption{CLIMADA measure mechanisms demonstrated in this exercise}
+\label{tab:mechanisms}
+\begin{tabular}{p{5cm}p{8cm}}
+\toprule
+Mechanism & Example used \\
+\midrule
+Linear hazard transform (a, b) & School floor raising, home flood-proofing, portable barriers \\
+Hazard frequency cutoff (RP) & Rebuilding levees, city-wide drainage upgrade, commercial levee \\
+Risk transfer (insurance) & Portfolio, residential parametric, and business interruption insurance \\
+Exposures swap (relocation) & Partial relocation in all three assets \\
+Linear MDD transform & Early warning system, community warning, elevated inventory storage \\
+Linear PAA transform & Flood-resistant building codes, business continuity planning \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+For insurance, attachment and cover limits were derived from the model's own exceedance
+curve (\texttt{Impact.calc\_freq\_curve}, using the 10-year return period as attachment and
+the 100-year return period as cover), not from arbitrary values. The cost loading applied
+was 1.5 times the pure premium, which is why the insurance benefit-to-cost ratio sits close
+to 1 divided by 1.5, approximately 0.66, across all three assets. This value reflects the
+cost of transferring volatility, not an expectation of savings.
+
+For relocation, an HDF5 Exposures file was built in which the locations with the highest
+depth at the 100-year return period have their value reduced to 40 percent of the original,
+corresponding to a partial relocation of 60 percent of the exposed value. A second variant
+was built for 2050, already scaled by the 2 percent annual economic growth rate; without
+this adjustment, the measure's benefit would incorrectly include the removal of economic
+growth itself from the future scenario.
+
+\subsection{Depth-Damage Curve for the Cost-Benefit Analysis}
+\label{sec:depth-curve}
+
+Residential and Companies are assigned a depth-based damage curve for the cost-benefit
+analysis, matched to the return-period depth hazard used there. Its shape comes from the
+curve published by the Joint Research Centre \citep{huizinga2017}: Table 3-5, for
+residential use in South America, is adopted for Residential, and Table 3-9, for commercial
+use in South America, is adopted for Companies. This is the same literature source and the
+same pattern already used, though without explicit citation, by the Schools entity shipped
+with the pack, which uses an equivalent depth-based curve.
+
+Because a regional literature curve's amplitude is not, by itself, validated for Porto
+Alegre, it is calibrated locally against the only available local data point: the real loss
+observed during the 2024 flood event. No depth-based footprint exists for that event, only
+a duration-based one, so a physical proxy is needed. Among the available return-period
+depth rasters, the one whose flooded extent most closely matches the extent actually
+observed in 2024 serves as that proxy. Comparing flooded area across rasters (pixel count
+with depth greater than zero, converted to square kilometers accounting for Porto Alegre's
+latitude), the 2024 event's extent (141.2 km\textsuperscript{2}) falls almost exactly
+between the 100-year return period (134.3 km\textsuperscript{2}) and the 500-year return
+period (148.0 km\textsuperscript{2}), closest to the 200-year return period (140.9
+km\textsuperscript{2}, a difference of only 0.3 km\textsuperscript{2}). This is consistent
+with public accounts of the 2024 Rio Grande do Sul floods as an exceptional, near
+record-breaking event for Porto Alegre, and the 200-year raster is used as the anchor.
+
+The curve's amplitude is calibrated by rescaling: keeping the same depth breakpoints and
+the same relative shape of the JRC curve, every mean damage degree (MDD) value is
+multiplied by a single scale factor, computed as the ratio of the observed 2024 loss to the
+loss the unscaled curve would produce on the 200-year return-period raster (0.048339 for
+Residential, 0.360351 for Companies). Because no value of the rescaled curve saturates at
+MDD equal to one within the observed depth range (0 to about 9 meters), this scaling
+propagates exactly linearly through the rest of the analysis: total risk, average annual
+risk, and each measure's benefit (with the exception of insurance) are each the value the
+unscaled curve would have produced, multiplied by the same asset-specific scale factor.
+Insurance attachment and cover limits are computed from this calibrated curve's own
+exceedance curve, following the same method as Section 2.4.
+
+The resulting totals are 470.267 million USD for Residential and 828.925 million USD for
+Companies (Section \ref{sec:results}). Measure costs are parametrized independently, as
+construction or municipal programme budgets, not as a quantity derived from the risk scale;
+Section \ref{sec:root-cause} examines the consequence of that independence in detail: none
+of Residential's six measures pay for themselves at their parametrized cost, while all six
+of Companies' measures continue to. This is an explicit limitation to keep in mind: the
+curve is anchored to a single aggregate data point (one event's total loss), not to a
+spatially distributed calibration like the one performed for the duration hazard in Section \ref{sec:calibration}, the same caveat that applies to any calibration built on few reference points.
+
+As an independent check that this scale factor is not an arbitrary or forced choice, the
+same calibration was reproduced using CLIMADA's own calibration framework
+(\texttt{climada.util.calibrate}), which minimizes the mean squared error between modelled
+and observed loss over a free scale parameter using \texttt{scipy.optimize}. Three
+optimization algorithms (Nelder-Mead, L-BFGS-B, and Powell) were run independently and all
+converged to the same values obtained analytically, 0.048339 for Residential and 0.360351
+for Companies, confirming that these are the cost-minimizing values for this one-parameter
+model given the observed 2024 loss, not a value chosen to produce a particular outcome.
+
+\subsection{Sensitivity to the Anchor Return Period}
+\label{sec:sensitivity}
+
+The scale factor is sensitive to which return period is used as the physical proxy for the
+2024 event: computed the same way at every available return period, it ranges from 2.37
+(Residential, RP10) down to 0.039 (Residential, RP500), since the raw curve's modelled loss
+grows with depth while the observed 2024 loss is fixed. This makes the RP200 choice, based
+on flooded-area similarity (Section \ref{sec:depth-curve}), the single most consequential
+methodological decision in this analysis, and it is worth checking how much the reported
+results would change under a different, still physically plausible choice.
+
+\begin{table}[H]
+\centering
+\caption{Total risk and non-insurance measure B/C under alternative anchor return periods}
+\label{tab:sensitivity}
+\small
+\begin{tabular}{lrrr}
+\toprule
+& RP100 & RP200 (used) & RP500 \\
+\midrule
+Residential total risk (M USD) & 569.0 & 470.3 & 378.1 \\
+Residential measures, B/C range & 0.23 to 0.88 & 0.19 to 0.73 & 0.15 to 0.59 \\
+Companies total risk (M USD) & 1{,}019.8 & 828.9 & 632.5 \\
+Companies measures, B/C range (excl. relocation) & 4.37 to 11.17 & 3.55 to 9.08 & 2.71 to 6.93 \\
+Companies relocation, B/C & 1.62 & 1.32 & 1.01 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Across this entire range, spanning a 100-year to 500-year event, the decision-relevant
+conclusion is stable: every one of Residential's non-insurance measures stays below a
+benefit-to-cost ratio of 1, and every one of Companies' measures other than relocation
+stays above 1. Companies' relocation measure is the one result sensitive enough to flag on
+its own: its ratio moves from 1.62 at RP100 to 1.01 at RP500, staying on the right side of
+break-even across the tested range but by a narrow and anchor-dependent margin. Insurance's
+ratio is excluded from this table because it depends on the model's exceedance curve rather
+than scaling linearly with the anchor choice; in practice it stays close to 0.66 under every
+return period tested, since it is set by the 1.5 times cost loading rather than by the
+underlying risk level.
+
+\subsection{Acceptance Criteria}
+\label{sec:refinement}
+
+Each measure's parametrization is checked against three criteria: no infinite, undefined,
+or greater-than-50 benefit-to-cost ratio, which would signal an unrealistically low cost;
+no individual measure's benefit exceeding the asset's total climate risk; and insurance
+attachment and cover limits always derived from the model, never from arbitrary estimates.
+The first two are sanity checks against a mis-specified cost or a benefit computed against
+the wrong baseline; the third exists because risk-transfer parameters chosen by hand can
+produce almost any premium, and with it almost any benefit-to-cost ratio, without the error
+being visible anywhere in the output.
+
+Under the final parametrization, no benefit-to-cost ratio exceeds 9.08, well below the
+ceiling of 50, and no individual benefit exceeds the asset's total climate risk; both
+sanity criteria are satisfied. For Residential, all six ratios fall below 1.0, which is not
+a sign of a parametrization error: it is the honest conclusion that, at this risk estimate,
+these specific measures, at the costs they were parametrized with, do not pay for
+themselves within the study horizon. Adjusting the costs to force ratios above one would
+substitute the desired outcome for the best available estimate of cost and risk, which is
+exactly what these criteria are meant to prevent.
+
+\section{Results}
+\label{sec:results}
+
+Each of the three subsections below covers one asset type in turn: Schools, Residential,
+and Companies. Every subsection follows the same structure, so results across assets can
+be compared directly. It opens with the asset's total climate risk and average annual
+risk for 2050, then a table listing all six adaptation measures with their mechanism,
+cost, benefit, and benefit-to-cost ratio, then the five figures generated for that asset
+(the cost-benefit chart, benefits by return period, the waterfall of averted risk, the
+expected annual impact map, and the depth map with relocation points), and closes with a
+paragraph interpreting what those figures show. A final subsection, Cross-Asset Synthesis,
+draws out the patterns that only become visible when comparing all three assets side by
+side, such as the stability of the insurance ratio and the climate-versus-growth split.
+
+\subsection{Schools}
+
+Schools is the one asset in this exercise whose calibration and damage curve were never
+touched: its risk figures below are exactly those the Starter Pack shipped with, unaffected
+by the calibration and curve-derivation work described in Section 2 for Residential and
+Companies. Total climate risk is 320.348 million USD, with an average annual risk of
+19.0853 million USD; both numbers are reproduced exactly by the pristine, unmodified
+upstream notebook, as described in Section \ref{sec:baseline}. Table \ref{tab:schools}
+lists all six measures, three that shipped with the pack (river dredging, levee
+rebuilding, and the early warning system) and three added for this exercise (school floor
+raising, portfolio insurance, and partial relocation), spanning five of the six CLIMADA
+measure mechanisms on their own.
+
+\begin{table}[H]
+\centering
+\caption{Schools: adaptation measures and cost-benefit results}
+\label{tab:schools}
+\begin{tabular}{p{3.6cm}p{3cm}rrr}
+\toprule
+Measure & Mechanism & Cost (M USD) & Benefit (M USD) & B/C \\
+\midrule
+River dredging & hazard $-1.5$ m & 789.562 & 195.782 & 0.25 \\
+Rebuilding levees & RP cutoff $\approx$ 100y & 161.171 & 257.866 & 1.60 \\
+Early warning system & MDD $\times 0.9$ & 1.500 & 32.035 & 21.36 \\
+School floor raising & hazard $-0.4$ m & 7.625 & 64.244 & 8.43 \\
+Portfolio flood insurance & risk transfer 32.3M xs 116.9M & 258.463 & 171.475 & 0.66 \\
+Partial relocation (5 of 122) & exposures swap & 10.500 & 34.764 & 3.31 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Costs in Table \ref{tab:schools} range from 1.5 million USD for the early warning system to
+789.6 million for river dredging, and benefit-to-cost ratios range even more widely, from
+0.25 for dredging up to 21.36 for the early warning system, the two ends of a pattern that
+recurs across all three assets: hazard-transform measures with no protection ceiling are
+expensive relative to the risk they avert, while cheap, narrowly targeted measures post the
+highest ratios precisely because their cost base is so small. The five figures that follow
+show this pattern from different angles, from the raw cost-benefit comparison to how each
+measure's contribution changes with event severity.
+
+\needspace{3.08in}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{figures/brazil_schools_cost_benefit.png}
+\caption{Cost-benefit results, Schools}
+\label{fig:schools-cb}
+\end{figure}
+
+Figure \ref{fig:schools-cb} plots each measure as a rectangle whose width is the net present
+value of averted damage and whose height is the benefit-to-cost ratio, so area is
+proportional to neither quantity alone and the two dimensions must be read together. The
+early warning system is the tall, narrow bar on the left: an excellent ratio built on a very
+small absolute benefit. River dredging is the opposite, the widest bar in the chart but so
+flat that it sits below the break-even line. For a decision maker this is the central
+trade-off in the Schools portfolio, since the measure that averts the most damage in
+absolute terms is also the one that fails to justify its cost.
+
+\needspace{2.73in}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{figures/brazil_schools_benefits_by_return_period.png}
+\caption{Benefits by return period, Schools}
+\label{fig:schools-rp}
+\end{figure}
+
+Figure \ref{fig:schools-rp} breaks the same benefits down by event severity, and explains
+why dredging looks so different from the rest. As a hazard transform with no protection
+ceiling, it keeps growing in absolute terms as events get more severe, and it dominates the
+benefit at the 200-year return period. Levees, with a cutoff near the 100-year return
+period, and insurance between them absorb most of the average risk across the middle of the
+range. Relocation and the early warning system appear only as thin bands throughout, which
+is consistent with their small absolute benefits even where their ratios are favourable.
+
+\needspace{3.29in}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.48\textwidth]{figures/brazil_schools_waterfall_averted_risk.png}
+\caption{Waterfall of averted risk, Schools}
+\label{fig:schools-wf}
+\end{figure}
+
+Figure \ref{fig:schools-wf} separates the drivers of future risk rather than the effect of
+the measures. Of the 19 million USD of risk projected for 2050, 6 million already existed in
+2025, a further 4 million comes from economic growth, and a further 10 million comes from
+climate change. Roughly 71 percent of the growth in risk between now and 2050 is therefore
+attributable to the climate scenario rather than to more assets being built in exposed
+places, a proportion that recurs closely in the other two assets and is discussed in Section
+\ref{sec:synthesis}.
+
+\needspace{4.26in}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{figures/brazil_schools_map_expected_annual_impact.png}
+\caption{Expected annual impact map, Schools}
+\label{fig:schools-eai}
+\end{figure}
+
+Figure \ref{fig:schools-eai} moves from aggregate to spatial, showing where the expected
+annual impact actually falls. Risk concentrates in the Farrapos and Humaita neighborhoods
+and around Sarandi, the lowest-lying fringes along Lake Guaiba, with the rest of the school
+network contributing very little. Because Schools is a point-facility dataset of 122
+locations rather than a grid, individual high-risk schools are visible as discrete markers,
+which is what makes a targeted measure such as relocation feasible to specify in the first
+place.
+
+\needspace{4.99in}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{figures/brazil_map_rp100_depth_schools.png}
+\caption{100-year return period depth and relocation points, Schools}
+\label{fig:schools-depth}
+\end{figure}
+
+Figure \ref{fig:schools-depth} overlays the 100-year flood depth on the school locations and
+marks the five schools selected for partial relocation. They sit exactly where the depth
+footprint is darkest, which is the criterion by which they were chosen, with one isolated
+case further south along the lake. The clustering explains why relocating only five of 122
+schools still returns a benefit-to-cost ratio above three: risk in this asset is
+concentrated enough that a small, well-targeted intervention captures a disproportionate
+share of it.
+
+\subsection{Residential}
+
+Residential is the asset most affected by the depth-damage curve derivation in Section
+\ref{sec:depth-curve}, since it is calibrated and risk-assessed for the first time in this
+exercise rather than reusing an existing pack example. Total climate risk is 470.267
+million USD, with an average annual risk in 2050 of 28.0255 million USD, figures already
+anchored to Porto Alegre's real 2024 loss and checked for sensitivity to the anchor choice
+in Section \ref{sec:sensitivity}. Table \ref{tab:residential} lists the six measures
+parametrized for this asset: home flood-proofing and a city-wide drainage upgrade, both
+carried over in mechanism from the Schools example; a parametric insurance layer sized to
+this asset's own exceedance curve; partial relocation of the highest-risk households; and
+two measures added specifically for Residential, a community-based early warning system
+and flood-resistant building codes for renovations.
+
+\begin{table}[H]
+\centering
+\caption{Residential: adaptation measures and cost-benefit results}
+\label{tab:residential}
+\begin{tabular}{p{3.6cm}p{3cm}rrr}
+\toprule
+Measure & Mechanism & Cost (M USD) & Benefit (M USD) & B/C \\
+\midrule
+Home flood-proofing & hazard $-0.3$ m & 362.064 & 70.321 & 0.19 \\
+Residential parametric insurance & risk transfer 47.8M xs 175.4M & 382.446 & 251.631 & 0.66 \\
+City-wide drainage upgrade & RP cutoff $=20$y & 300.000 & 218.109 & 0.73 \\
+Relocation (50 of 20{,}187) & exposures swap & 8.250 & 3.924 & 0.48 \\
+Community-based early warning & MDD $\times 0.85$ & 150.000 & 70.540 & 0.47 \\
+Flood-resistant building codes & PAA $\times 0.8$ & 200.000 & 94.053 & 0.47 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+None of these six measures pays for itself at its parametrized cost, at this risk estimate.
+This is the central decision-relevant finding of this report, and it is examined in detail
+in Section \ref{sec:root-cause}, which traces it to two compounding causes: the scale of
+several of these measures' budgets relative to Residential's real risk, and the underlying
+gap between how much value is exposed and how much of that value is actually at risk once
+the damage curve is anchored to a real observed loss rather than left at its literature
+amplitude. The five figures below show the same conclusion from different angles, from the
+raw cost-benefit comparison to how the underlying risk itself is distributed across the
+city.
+
+\needspace{3.10in}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{figures/brazil_residential_cost_benefit.png}
+\caption{Cost-benefit results, Residential}
+\label{fig:residential-cb}
+\end{figure}
+
+Figure \ref{fig:residential-cb} makes the headline result immediately visible: every
+rectangle sits below the break-even line, so no measure in this portfolio returns more than
+it costs. The chart is worth reading alongside the Schools equivalent (Figure
+\ref{fig:schools-cb}), where the bars span a wide range of heights. Here they are compressed
+into a narrow band between 0.19 and 0.73, which is the visual signature of measure budgets
+that are large relative to the risk they address rather than of any single mis-specified
+measure.
+
+\needspace{2.66in}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{figures/brazil_residential_benefits_by_return_period.png}
+\caption{Benefits by return period, Residential}
+\label{fig:residential-rp}
+\end{figure}
+
+Figure \ref{fig:residential-rp} shows a sharp cutoff pattern. The city-wide drainage
+upgrade, with its cutoff at the 20-year return period, covers the entirety of risk at the 5
+and 10-year return periods, below its protection ceiling, then disappears completely from
+the 20-year return period onward once events exceed that ceiling. Beyond that point
+insurance, sitting at the highest risk layer, and the building codes take over. At the
+200-year return period a slice remains uncovered between the top of the stacked measures and
+the total risk envelope, showing that the six measures together still leave a visible
+residual risk against the most extreme event.
+
+\needspace{3.32in}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.48\textwidth]{figures/brazil_residential_waterfall_averted_risk.png}
+\caption{Waterfall of averted risk, Residential}
+\label{fig:residential-wf}
+\end{figure}
+
+Figure \ref{fig:residential-wf} decomposes the growth in risk to 2050. Risk rises from 8.2
+million USD in 2025 to 28.0 million in 2050, an increase of 5.3 million attributable to
+economic growth and 14.5 million to climate change, about 73 percent climate against 27
+percent growth. That this matches the Schools split so closely, despite a completely
+different exposure base and calibration, is one of the more robust findings of the exercise
+and is taken up in Section \ref{sec:synthesis}.
+
+\needspace{4.20in}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{figures/brazil_residential_map_expected_annual_impact.png}
+\caption{Expected annual impact map, Residential}
+\label{fig:residential-eai}
+\end{figure}
+
+Figure \ref{fig:residential-eai} shows a spatial pattern quite distinct from Schools.
+Instead of a handful of concentrated points, residential exposure covers nearly the entire
+urban footprint of Porto Alegre, because this asset is a city-wide gridded dataset of more
+than 20,000 points rather than a list of facilities. This breadth is precisely what makes
+city-scale measures expensive here: an intervention defined across the whole grid has to be
+funded across the whole grid, while the risk it addresses remains concentrated in the
+low-lying north.
+
+\needspace{4.99in}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{figures/brazil_residential_map_rp100_depth_relocation.png}
+\caption{100-year return period depth and relocation points, Residential}
+\label{fig:residential-depth}
+\end{figure}
+
+Figure \ref{fig:residential-depth} marks the 50 grid points selected for partial relocation
+against the 100-year depth footprint. Unlike Schools, where the selected sites form a tight
+cluster, these spread across several riverside neighborhoods with additional pockets further
+south. The wider spread is one reason relocation performs worse here than for the other two
+assets: the same conservative rule, moving 60 percent of value at the deepest points,
+captures a smaller share of total risk when that risk is diffuse rather than concentrated.
+
+\subsection{Companies}
+
+Companies shares its calibration method and depth-damage curve derivation with Residential,
+but differs sharply in how concentrated its exposure is: a smaller, denser commercial base
+along the riverfront and in the historic center, rather than a grid spanning the whole city.
+Total climate risk is 828.925 million USD, with an average annual risk in 2050 of 49.6197
+million USD, both already anchored to the observed 2024 loss in the same way as Residential.
+Table \ref{tab:companies} lists the six measures parametrized for this asset: portable flood
+barriers and a levee protecting the commercial district, mirroring Residential's
+hazard-transform and cutoff mechanisms; business interruption insurance; relocation of the
+highest-risk businesses; elevated inventory storage; and business continuity and supply
+chain diversification planning.
+
+\begin{table}[H]
+\centering
+\caption{Companies: adaptation measures and cost-benefit results}
+\label{tab:companies}
+\begin{tabular}{p{3.6cm}p{3cm}rrr}
+\toprule
+Measure & Mechanism & Cost (M USD) & Benefit (M USD) & B/C \\
+\midrule
+Portable flood barriers & hazard $-0.3$ m & 36.533 & 147.182 & 4.03 \\
+Business interruption insurance & risk transfer 66.7M xs 356.6M & 713.520 & 474.347 & 0.66 \\
+Relocation (20 of 4{,}366) & exposures swap & 10.250 & 13.508 & 1.32 \\
+Levee (commercial district) & RP cutoff $=20$y & 50.000 & 321.952 & 6.44 \\
+Elevated inventory storage & MDD $\times 0.8$ & 18.266 & 165.785 & 9.08 \\
+Business continuity and supply chain diversification & PAA $\times 0.7$ & 70.000 & 248.677 & 3.55 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Unlike Residential, all six measures pay for themselves (B/C $>1$), a direct consequence of
+Companies' much smaller, more concentrated exposure base relative to its risk (Section
+\ref{sec:root-cause} quantifies this contrast directly). Relocation, at 1.32, does so with
+the narrowest margin of the six, and is the one result in this report sensitive enough to
+the anchor return period (Section \ref{sec:sensitivity}) to be worth flagging as less
+certain than the rest; the other five measures stay comfortably above break-even across the
+full range of anchor choices tested. The five figures below show this pattern in more
+detail, from the raw cost-benefit comparison through to how the risk itself is distributed
+across the city.
+
+\needspace{3.11in}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{figures/brazil_companies_cost_benefit.png}
+\caption{Cost-benefit results, Companies}
+\label{fig:companies-cb}
+\end{figure}
+
+Figure \ref{fig:companies-cb} is the visual counterpart to Figure \ref{fig:residential-cb}
+and the contrast is stark: here the rectangles rise well above the break-even line, with
+elevated inventory storage reaching 9.08 and the commercial-district levee 6.44. The same
+six mechanisms, applied to a much smaller and more concentrated exposure base, produce a
+portfolio that pays for itself several times over. Only insurance sits below the line, and
+for the structural reason discussed in Section \ref{sec:synthesis} rather than because of
+how it was costed.
+
+\needspace{2.63in}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{figures/brazil_companies_benefits_by_return_period.png}
+\caption{Benefits by return period, Companies}
+\label{fig:companies-rp}
+\end{figure}
+
+Figure \ref{fig:companies-rp} repeats the cutoff pattern seen for Residential. The levee,
+with a cutoff at the 20-year return period, dominates the benefit at the 5 and 10-year
+return periods and drops to zero from 20 years onward. Beyond that point insurance dominates
+at the highest risk layer, while the MDD and PAA transform mechanisms, elevated inventory
+storage and business continuity planning, contribute a relatively stable middle band across
+every return period, since neither has a protection ceiling that the event can exceed.
+
+\needspace{3.32in}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.48\textwidth]{figures/brazil_companies_waterfall_averted_risk.png}
+\caption{Waterfall of averted risk, Companies}
+\label{fig:companies-wf}
+\end{figure}
+
+Figure \ref{fig:companies-wf} completes the set of three risk decompositions. Risk rises
+from 14.3 million USD in 2025 to 49.6 million in 2050, with 9.1 million attributable to
+economic growth and 26.2 million to climate change, close to 74 percent climate against 26
+percent growth. This is the third asset to land in the same narrow band despite entirely
+independent exposure data, calibration, and measures, which is the strongest internal
+consistency check available in this exercise.
+
+\needspace{4.19in}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{figures/brazil_companies_map_expected_annual_impact.png}
+\caption{Expected annual impact map, Companies}
+\label{fig:companies-eai}
+\end{figure}
+
+Figure \ref{fig:companies-eai} shows a double concentration rather than the single cluster
+of Schools or the diffuse spread of Residential. A dense band runs along the river through
+the Farrapos, Humaita, and Sarandi neighborhoods, coinciding with the lowest and most
+flood-prone ground, and a second, much smaller cluster sits in Porto Alegre's historic
+center, its commercial and port district. That commercial activity concentrates in exactly
+the places most exposed to flooding is what gives this asset its high risk-to-exposure
+ratio, and in turn why targeted measures perform so well against it.
+
+\needspace{4.99in}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{figures/brazil_companies_map_rp100_depth_relocation.png}
+\caption{100-year return period depth and relocation points, Companies}
+\label{fig:companies-depth}
+\end{figure}
+
+Figure \ref{fig:companies-depth} marks the 20 businesses selected for relocation against the
+100-year depth footprint. Almost all fall inside the dense riverside band, with only a few
+isolated points outside it, an intermediate case between the tight clustering of Schools and
+the wide dispersion of Residential. This is consistent with relocation returning a positive
+but narrow benefit-to-cost ratio of 1.32 here, the one Companies result flagged in Section
+\ref{sec:sensitivity} as sensitive to the anchor choice.
+
+\subsection{Cross-Asset Synthesis}
+\label{sec:synthesis}
+
+Insurance stays consistently close to a benefit-to-cost ratio of 0.66 across all three
+assets. This is a mechanical consequence of the uniformly applied 1.5 times cost loading,
+not a modelling failure: insurance's value lies in transferring volatility, not in expected
+long-run savings, and this ratio depends only on the loading factor, not on the risk scale.
+It is worth stating explicitly to a decision maker, because a bar chart that places
+insurance below every other measure invites the reading that it was parametrized badly, when
+in fact a ratio near the reciprocal of the loading is exactly what a correctly specified
+risk-transfer layer should produce.
+
+Wide-infrastructure measures, such as levees, dredging, and drainage, show very different
+benefit-to-cost ratios depending on the asset evaluated. In Schools, these measures protect
+the entire city but are evaluated only against the narrow slice of school assets, yielding
+ratios between 0.25 and 1.60. In Companies, the commercial-district levee, evaluated against
+the population it actually protects, reaches 6.44. In Residential, the same "broader base"
+logic applies to the drainage upgrade, but its risk scale leaves no margin: its ratio falls
+to 0.73. In other words, evaluating against a broader base continues to raise the
+benefit-to-cost ratio relative to Schools, but is not, by itself, enough to offset a real
+risk much smaller than the exposed value it is measured against.
+
+Relocation is not uniformly positive across the three assets: in Schools the ratio is 3.31;
+in Companies it is 1.32, positive but by a narrow margin; in Residential it is 0.48, not
+paying for itself. The conservative approach adopted, relocating only 60 percent of the
+exposed value at the highest-depth points, is still not enough to justify Residential's
+relocation cost against its estimated risk. The pattern across the three assets tracks how
+spatially concentrated each one's risk is, as the depth maps in Section \ref{sec:results}
+show: tightly clustered for Schools, intermediate for Companies, and diffuse for
+Residential. Relocation rewards concentration, because a fixed number of relocated points
+captures a larger share of total risk when that risk is not spread thinly.
+
+The proportion between climate change and economic growth in future risk growth is notably
+stable across all three assets, between 71 and 75 percent attributable to climate change and
+between 25 and 29 percent to economic growth. This is a sign of the exercise's robustness:
+the three assets use completely different exposure bases, calibrations, and measures, but
+share the same future climate scenario, the 2025 to 2050 return-period remapping, and the
+same 2 percent annual economic growth rate. The stability of this proportion suggests that
+the climate scenario, not particular parametrization choices, is the main driver of
+projected future risk growth.
+
+Finally, measures with a return-period cutoff, such as drainage and levees, always drop to
+zero above their protection ceiling. This pattern appears clearly in the
+benefits-by-return-period charts for Residential and Companies: full protection up to the
+20-year return period, zero contribution afterward. This is a known limitation of that
+mechanism, offering complete protection or none, with no partial gradation, and it is worth
+explaining clearly to a decision maker before the measure is adopted in isolation.
+
+\section{Root Cause Analysis: Why Residential Measures Do Not Pay Off}
+\label{sec:root-cause}
+
+The result that none of Residential's six measures pay for themselves, while all six of
+Companies' do, prompted a dedicated investigation, since a result that surprising warrants
+verification before it is trusted. Two checks were performed. First, a pristine clone of
+the upstream Starter Pack repository confirmed that no official Residential or Companies
+cost-benefit example exists anywhere upstream: only Schools ships a complete, calibrated
+example. There is therefore no previously "working" Residential result that this exercise
+could have regressed; this is the first time this calculation has ever been performed for
+that asset. Second, the notebook re-execution described in Section \ref{sec:baseline} confirmed the
+pipeline itself reproduces its own numbers exactly, ruling out an execution or environment
+bug.
+
+With reproducibility and baseline validity confirmed, the asymmetry itself still needs an
+explanation, since it is large enough that a reader could reasonably suspect a modelling
+error rather than a genuine finding. The analysis below identifies two compounding causes,
+one about how the six measures were costed and one about the underlying economics of the
+two exposure bases, and quantifies each rather than leaving the explanation qualitative.
+Table \ref{tab:rootcause} sets out the comparison that motivates both: Residential and
+Companies differ enormously in exposed value, but far less in total climate risk, and that
+gap alone accounts for most of what follows.
+
+\begin{table}[H]
+\centering
+\caption{Cost-to-risk comparison, Residential versus Companies}
+\label{tab:rootcause}
+\small
+\begin{tabular}{lp{2cm}p{2cm}p{2cm}p{2.2cm}p{1.5cm}}
+\toprule
+Asset & Exposed value (2025) & Total climate risk & Risk / exposed value & Sum of 6 measure costs & Cost / risk \\
+\midrule
+Residential & 69.312 bn USD & 470.267 M USD & 0.68\% & 1{,}402.760 M USD & 298\% \\
+Companies & 3.656 bn USD & 828.925 M USD & 22.67\% & 898.569 M USD & 108\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Cause 1: several of Residential's measure costs are large, programme-scale budgets
+relative to its risk.} Three of Residential's six measures, Home flood-proofing (362.064
+million USD), Community-based early warning (150.000 million USD), and Flood-resistant
+building codes (200.000 million USD), are costed as city-scale programmes intended to reach
+the full residential base, 69.3 billion USD of exposed value spread across more than 20,000
+grid points. Only one of Companies' six measures is costed at a comparable programme scale.
+This asymmetry in cost scale, independent of any curve calibration question, already
+accounts for much of the difference in benefit-to-cost outcome between the two assets.
+
+\textbf{Cause 2: the scale mismatch is also structural.} Residential has about 19 times
+more exposed value than Companies, but its total climate risk is only marginally higher in
+absolute dollar terms. This makes Residential's risk intensity, risk as a share of exposed
+value, about 33 times smaller than Companies' (0.68 percent against 22.67 percent). The sum
+of Residential's six measure costs, 1.4 billion USD, almost three times its own total risk,
+simply does not fit inside the risk it addresses, even where no individual cost is
+unusually large in absolute terms.
+
+The difference in how much the unscaled literature curve overestimated the observed 2024
+loss, roughly 20.7 times for Residential against 2.8 times for Companies (Section
+\ref{sec:depth-curve}), traces back to the JRC curve itself: the "South America
+residential" table fit Porto Alegre's real 2024 loss far worse than the "South America
+commerce" table did. It is not possible to say with confidence, from the data currently
+available, whether this is because the curve is a poor match for Porto Alegre's residential
+building stock specifically, or because that stock is itself atypical of the regional
+average the curve represents; resolving this would require a depth-based footprint of the
+2024 event, the same limitation already noted in Section \ref{sec:depth-curve}.
+
+This is not a computational error. It is a legitimate, if uncomfortable, finding: at the
+best available estimate of real flood risk, Residential adaptation as currently scoped and
+costed in this exercise is not economically justified, while Companies' portfolio remains
+justified with reduced margins. The practical implication is not that residential adaptation
+should be abandoned, but that it should be re-scoped: the measures here were specified at
+city scale, and the analysis suggests the case for them has to be made either at a smaller,
+better-targeted scale or on grounds other than avoided direct economic damage, such as
+displacement, health, or continuity of services, none of which this model prices.
+
+\section{Discussion and Conclusions}
+
+The exercise confirms that extending a cost-benefit example from one asset to others within
+the same case study is not a mechanical exercise in copying code. Calibrating a new asset
+requires a search space of its own, sensitive to that asset's exposure scale, and
+integrating calibration with cost-benefit analysis requires explicit attention to the
+physical unit of the hazard used at each step: Residential and Companies are calibrated
+against a duration hazard for event reconstruction, but the cost-benefit analysis runs on a
+depth hazard, so it uses a separate, depth-based curve (Section \ref{sec:depth-curve}). A
+declared physical unit compatible with the hazard actually used is necessary but not
+sufficient: the literature curve's amplitude, tested with no adjustment against the real
+loss observed in 2024, overestimated that loss by 20.7 times for Residential and 2.8 times
+for Companies, which is why its amplitude is calibrated locally rather than taken at face
+value. The broader lesson is that a damage curve's physical unit and its magnitude are two
+separate properties to verify; a curve can be dimensionally correct and still produce
+substantially incorrect results, silently, because the output looks plausible enough not to
+raise suspicion unless it is deliberately checked against a real observed loss.
+
+From a decision-making standpoint, the final picture is more heterogeneous than a single
+conclusion of the form "adaptation measures are worthwhile." For Companies, the six-measure
+portfolio makes economic sense, with modest margins but all above break-even. For
+Residential, none of the six parametrized measures pays for
+itself against the real estimated risk: not the wide-infrastructure measure (drainage), not
+the partial relocation, not the MDD or PAA measures. This does not mean adaptation is not
+worthwhile for Porto Alegre's residential sector; it means the measures \emph{as
+parametrized in this exercise}, at these costs and this scale, are not justified against the
+best available estimate of risk. A future refinement would need to reconsider the scale of
+the interventions, for example targeting only the highest-risk points rather than the whole
+city, or seek genuine cost reductions, rather than simply accepting the current figures.
+Parametric insurance, across all three assets, remains structurally the lowest
+benefit-to-cost mechanism (approximately 0.66), a cost of transferring volatility worth
+explaining to a decision maker as expected, not as a poorly parametrized measure.
+
+The most important limitation of this exercise is that the final damage curve, though
+anchored to the real 2024 loss, was calibrated against a single aggregate data point, the
+event's total loss, not against a spatial distribution of losses like the one that guided
+the duration hazard's calibration in Section \ref{sec:calibration}. The 200-year return period used as a
+proxy for 2024's depth was chosen by area similarity between two distinct hazard models,
+the 2024 duration model and the return-period depth model, not by a direct physical
+correspondence; it is the best available approximation, not a calibration with the same
+rigor as Section \ref{sec:calibration}. Any future refinement of the Brazil case study should prioritize
+obtaining or reconstructing a depth-based footprint of the 2024 event, to enable a direct,
+spatially distributed calibration, the way one already exists for the duration hazard.
+
+\section{Recommendations for Replication}
+
+Every number in this report is reproducible from the data and code delivered alongside it,
+without needing to rebuild anything from scratch. The five notebooks that produce the
+results in Section \ref{sec:results}, the calibration in \texttt{06b} and the four
+cost-benefit runs in \texttt{09} through \texttt{12}, can each be re-executed independently
+once the environment described in Section 2.1 is set up, and each writes its own figures
+and printed totals in place, so a discrepancy in any one number can be traced back to the
+specific notebook cell that produced it. The commands below assume a terminal open in the
+root of this repository, with the \texttt{climada\_env} environment already created and
+activated.
+
+\begin{verbatim}
+conda activate climada_env
+cd notebooks/
+jupyter nbconvert --to notebook --execute --inplace \
+    06b_calibration_residential_companies.ipynb
+jupyter nbconvert --to notebook --execute --inplace 09_costbenefit.ipynb
+jupyter nbconvert --to notebook --execute --inplace \
+    10_costbenefit_additional_measures.ipynb
+jupyter nbconvert --to notebook --execute --inplace \
+    11_costbenefit_residential.ipynb
+jupyter nbconvert --to notebook --execute --inplace \
+    12_costbenefit_companies.ipynb
+\end{verbatim}
+
+All required input files, including the calibrated and measure-parametrized Entity files
+and the relocation HDF5 files, are already available in \texttt{data/}. It is not necessary
+to run the numbered \texttt{.py} scripts to reproduce the results in this report; they
+exist only as a record of how each file was built and are documented in
+\texttt{notebooks/README.md}. Running them is only necessary to rebuild the inputs from
+scratch or to adapt part of the exercise.
+
+To reproduce or extend this analysis within the Brazil case study, five general steps
+apply. First, calibrate the asset of interest following the method of notebooks
+\texttt{06a} and \texttt{06b}, adjusting the search space to that asset's own exposure
+scale, since the original search space does not transfer between assets of different
+scales. Second, and most important, confirm that the physical unit of the hazard used in
+calibration matches the physical unit of the hazard that will be consumed in the
+cost-benefit analysis; this should be a mandatory step before any calibration, since a unit
+mismatch produces no exceptions and no error messages, only numerically plausible and
+substantially incorrect results. Third, if a literature curve is substituted in to resolve
+a unit or domain mismatch, validate its magnitude against the best available local loss
+data before trusting absolute dollar figures, even a single aggregate observation, as
+Section \ref{sec:depth-curve} does; do not assume that a dimensionally correct curve is
+automatically a calibrated one. Fourth, design adaptation measures to cover distinct
+CLIMADA mechanisms, since varying the mechanism, not just the numeric value of the
+parameters, is what makes the analysis informative for the decision maker. Fifth, refine the
+parametrization against the three acceptance criteria in Section \ref{sec:refinement}
+before treating the final numbers as final, and resist the temptation to retune costs
+purely to make an uncomfortable result look better.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\appendix
+
+\section{Technical Notes and Recommendations for the Starter Pack}
+\label{app:notes}
+
+The following notes were compiled while extending the pack for this exercise, for
+discussion with the UNU-EHS team and for other participants working on the Brazil case
+study or extending their own. They cover friction points in the Starter Pack's data
+structures, plotting utilities, and calibration workflow that were not obvious from the
+existing teaching material, but that materially affected how long this exercise took and
+how easy the results are to trust. Some are narrow, single-line fixes; others, such as the
+distinction between a dimensionally correct curve and a locally validated one, point to a
+broader methodological habit worth building into the pack's documentation rather than
+left for each participant to rediscover independently. They are ordered roughly by how
+early in a typical extension of the pack a participant is likely to encounter them.
+
+\begin{enumerate}
+\item \textbf{Exposures-swap measures interact badly with economic growth, and the pack
+does not warn about it.} The \texttt{assets file} measure column points to a single HDF5
+file, but \texttt{CostBenefit.calc} applies the present Entity's measures to the present
+scenario and the future Entity's measures to the future scenario. If both Entities'
+relocation measure point at the same, present-values HDF5 file, the measure's benefit
+silently includes the removal of decades of economic growth from the adapted future
+scenario, overstating it substantially. This exercise handled it by writing a second,
+growth-scaled HDF5 file and repointing the future entity's measure in code. A short warning
+in the cost-benefit notebook, or a worked example, would save other participants from this
+trap.
+
+\item \textbf{No worked example derives insurance parameters from the model itself.} The
+training material introduces \texttt{Impact.calc\_freq\_curve()} and the risk transfer
+attachment and cover parameters separately, but does not connect them. This exercise set
+attachment and cover from the present-day unadapted exceedance curve, which felt like the
+natural pattern to teach; it is worth adding to the notebook, since arbitrary first-guess
+constants produce very different premiums and benefits.
+
+\item \textbf{Relative paths in the \texttt{assets file} column resolve against the process
+working directory, not the Entity file's own location.} This works while notebooks run from
+the \texttt{notebooks/} folder, but breaks the moment an Entity file is loaded from
+anywhere else. This friction recurred twice during this session's own corrections: once
+when copying a corrected Entity file between two differently named folder layouts, and
+again when renaming those same folders for public release, both times breaking the
+relocation measure silently until re-executed and checked. Resolving \texttt{assets file}
+relative to the Entity file's own location, rather than the process working directory,
+would remove this entire class of bug.
+
+\item \textbf{A dimensionally correct curve is not the same as a validated curve.} The pack
+is careful about calibration uncertainty where it calibrates explicitly, but the
+depth-based curve shipped with the Schools entity arrives pre-made, with no note of its
+provenance or of whether its amplitude was ever checked against local data. Adopting the
+equivalent literature curve for Residential and Companies and then checking it against
+Porto Alegre's real 2024 loss (Section \ref{sec:depth-curve}) showed the unscaled version
+overestimating that loss by roughly 20.7 times for Residential and 2.8 times for Companies.
+Labelling the shipped curve with its source and adding a single sentence next to any
+literature-curve suggestion, stating that it is a regional default whose amplitude must be
+validated against available local loss data before absolute figures are trusted, would help
+other participants catch this earlier.
+
+\item \textbf{The expert-judgement bounds that resolve the calibration's degeneracy are
+asset-specific, and nothing warns you when they stop applying.} The pack handles this
+well: \texttt{06a} explains clearly that fitting two parameters to one observation leaves a
+whole family of equally good solutions, and resolves it with stated expert judgement for
+Schools, \texttt{max\_damage > 0.7} because several schools were rebuilt outright, and
+\texttt{max\_intensity < 30} read off the parameter-space chart as the consequence of that
+first choice. The difficulty is that the second bound is derived from the first, and only
+the second survives transfer to another asset: Residential and Companies calibrate to
+damage ratios of 0.028 and 0.294, so \texttt{max\_damage > 0.7} is impossible by
+construction, while \texttt{max\_intensity < 30} still runs and still silently selects a
+result. A participant adapting \texttt{06a} to a new asset therefore inherits a numerical
+bound stripped of its justification. Restating the expert-judgement cell as a short
+checklist, asking which bounds are asset-specific and what evidence would set them for the
+new asset, would make that dependency visible at the point where it matters.
+
+\item \textbf{\texttt{plot\_basemap\_eai\_exposure()}'s automatic colorbar collides with a
+custom title once values exceed $10^6$.} Matplotlib adds a scientific-notation offset label
+above the colorbar, at the same height as a centered axis title; for Schools, values under
+200,000, this never appears, but Residential and Companies, values up to several million
+USD, triggered it. The fix is to grab the colorbar axis and force a plain
+\texttt{ScalarFormatter} instead of fighting it with title length or position. Also,
+calling \texttt{ax.set\_title(..., loc="left")} after a function that already sets its own
+centered title creates a second, independent title slot rather than replacing the first,
+since matplotlib stores left, center, and right titles separately; call \texttt{set\_title}
+without a \texttt{loc} argument to replace it.
+
+\item \textbf{Windows-specific kernel failure, not reproduced on Linux.} On Windows, the
+conda-forge \texttt{pyzmq}/\texttt{libzmq} build can make every
+\texttt{jupyter nbconvert --execute} fail with \texttt{Bad file descriptor}
+(\texttt{epoll.cpp:73}); replacing \texttt{pyzmq} with the PyPI wheel
+(\texttt{pip install --force-reinstall pyzmq==26.2.0}) restores kernel communication. This
+exercise's own notebooks were re-executed and verified on Linux without encountering this
+issue, so it is specific to the Windows build of the conda-forge package, not to the
+notebooks themselves; it is still worth a line in the installation FAQ for participants who
+work on Windows.
+
+\item \textbf{Insurance's benefit-to-cost ratio is approximately one over the cost factor
+by construction, and that is worth stating explicitly.} With a premium loading of 1.5, the
+ratio lands near 0.66 regardless of the layer. The measure's value is transferring
+volatility, protection against rare, budget-breaking years, not expected-value savings; a
+sentence in the teaching material would preempt an "insurance looks bad" misreading of the
+bar chart.
+
+\item \textbf{\texttt{06a}'s Excel export step is manual and mislabels the intensity
+unit.} The final cell of \texttt{06a\_calibration\_schools.ipynb} prints the calibrated
+functions with column \texttt{intensity\_m} and \texttt{intensity\_unit: "meter"}, even
+though the calibration ran on flood duration in days, and the table must then be pasted
+into the calibrated workbook by hand. Notebook \texttt{06b} automated this export with
+openpyxl and wrote the unit as \texttt{days}. It is also worth clarifying that the
+\emph{shipped} calibrated Schools entity uses a depth-based curve consistent with the JRC
+return-period rasters, which is not the duration-based curve \texttt{06a} itself produces;
+the connection between the two would be good to explain explicitly in the teaching
+material.
+\end{enumerate}
+
+\end{document}
