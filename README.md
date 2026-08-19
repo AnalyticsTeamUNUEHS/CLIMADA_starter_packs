@@ -17,6 +17,7 @@ The starter packs are designed to show different parts of CLIMADA in action, and
 
 **Recent updates:**
 
+- add a Brazil adaptation and cost-benefit exercise: calibration and 6-measure cost-benefit assessment for Residential and Companies (extending the existing Schools notebook), a depth-damage curve fix, and supporting data/figures/report.
 - 2027-07-03: add El Salvador future risk data and calculations notebook
 - 2027-07-02: add Peru future risk data and calculations notebook
 - 2026-06-30: add a cost-benefit calculation notebook for Brazil, plus necessary input data.
@@ -40,6 +41,7 @@ A study into flood impacts in the city of Ica, Peru, looking at impacts on house
 A study into flood impacts in the city of Porto Alegre, Brazil. Reconstructing damage curves for the event for homes, businesses and schools using loss data. Particular issues covered:
 
 - Calibrating to event losses from multiple administrative units
+- An adaptation and cost-benefit exercise extending the analysis to Residential and Companies (6 measures each, matching the existing Schools assessment), including a depth-damage curve correction
 
 
 ### El Salvador: national drought modelling
