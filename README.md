@@ -1,3 +1,12 @@
+
+# This repository has moved (20 October 2026)
+
+UNU Analytics work for the Interamerican Development Bank is finishing, and the repository has been moved to 
+https://github.com/crogelis/CLIMADA-UNU-2. This repository is kept here for archival and backward compatibility reasons.
+
+While we will try to keep any final changes synchronized, please update your references to point to the new location.
+
+
 # CLIMADA Starter Packs
 
 <div align="center" style="text-align: center; margin: 1.25rem 0 0.75rem 0;">
