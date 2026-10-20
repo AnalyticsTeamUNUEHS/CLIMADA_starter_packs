@@ -1,4 +1,6 @@
 .DS_Store
 build/intermediate_files/
 build/test_notebooks/
+build/notebooks_raw/
 .vscode/
+starter_pack_*/notebooks/draft*
